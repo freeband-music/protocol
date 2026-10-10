@@ -27,7 +27,7 @@ MANIFEST = {
     "name": "Fake add-on",
     "version": "0.1.0",
     "description": "Canned data for tests",
-    "protocolVersion": "0.2.0",
+    "protocolVersion": "0.3.0",
     "resources": ["search", "meta", "stream"],
     "idPrefixes": ["fake:"],
     "configurable": False,
@@ -54,7 +54,16 @@ def routes(port: int, invalid: bool) -> dict[str, object]:
     for track in TRACKS:
         table[f"/meta/track/{track['id']}"] = track
         table[f"/stream/track/{track['id']}"] = {"status": "ok", "streams": [stream]}
+    # A track outside the catalogue that is prepared on request.
+    table["/stream/track/fake:track:3"] = {
+        "status": "queued",
+        "message": "Preparing; ask again later",
+        "streams": [],
+    }
     return table
+
+
+NOT_READY = {"status": "not_found", "message": "Nothing playable right now", "streams": []}
 
 
 def make_handler(table: dict[str, object]) -> type[BaseHTTPRequestHandler]:
@@ -69,6 +78,13 @@ def make_handler(table: dict[str, object]) -> type[BaseHTTPRequestHandler]:
             ):
                 status = 400
                 body = {"error": {"code": "bad_request", "message": "title and artist are required"}}
+            elif (
+                url.path.startswith("/stream/track/")
+                and query.get("queue", ["true"])[-1].lower() in ("false", "0")
+                and isinstance(body, dict)
+                and body.get("status") == "queued"
+            ):
+                body = NOT_READY  # queue=false: start nothing, answer what is ready now
             elif body is None:
                 status = 404
                 body = {"error": {"code": "not_found", "message": "Not found"}}

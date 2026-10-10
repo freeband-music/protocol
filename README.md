@@ -73,7 +73,7 @@ credentials.
 | `/meta/artist/{id}` | An artist with summaries of their albums. |
 | `/meta/album/{id}` | An album with its tracks in order. |
 | `/meta/track/{id}` | A single track. |
-| `/stream/track/{id}` | Streams for a track, best first. The track's details are query parameters: `title` and `artist` (repeatable) are required; `albumTitle`, `albumArtist`, `trackNumber`, `discNumber`, `trackCount`, `durationMs`, `year` and `isrc` are optional. |
+| `/stream/track/{id}` | Streams for a track, best first. The track's details are query parameters: `title` and `artist` (repeatable) are required; `albumTitle`, `albumArtist`, `trackNumber`, `discNumber`, `trackCount`, `durationMs`, `year`, `isrc` and `queue` are optional. |
 
 The manifest's `resources` lists which of `search`, `meta` and `stream` the
 add-on serves. A metadata add-on serves `search` and `meta`; a stream add-on
@@ -99,6 +99,24 @@ list of `streams`.
 | `ok` | At least one stream is ready to play. |
 | `queued` | Nothing is playable yet, but the add-on has started preparing the track; ask again later. |
 | `not_found` | The add-on has nothing for this track. |
+
+#### Asking only for what is ready: `queue=false`
+
+The optional `queue` query parameter (boolean, default `true`) says whether
+the add-on may start preparing a track that is not playable yet. With
+`queue=false` the add-on must not start any work that changes state
+elsewhere or outlives the request (no downloads, nothing put in a queue): it
+answers `ok` with the streams that are playable right now, or `not_found`,
+and never `queued`. Such a `not_found` means only that nothing is ready at
+the moment; the same request without `queue=false` may still find or prepare
+a stream. Clients use it to look ahead, for example to check a whole play
+queue before it is played:
+
+```
+{base}/stream/track/fake:track:3?title=Fake+Track+3&artist=Fake+Artist&queue=false
+```
+
+Add-ons that predate protocol 0.3.0 ignore the parameter.
 
 Each stream carries:
 
@@ -147,7 +165,9 @@ stream-only add-on has no track of its own to test with, so describe one:
 just conformance http://localhost:8000 --title "Song" --artist "Artist" --album-title "Album"
 ```
 
-It prints one line per route and exits 0 when every declared resource
+For a stream add-on it sends the stream request twice, the second time with
+`queue=false`, and fails if that answer is `queued`. It prints one line per
+route and exits 0 when every declared resource
 validates against the schema, 1 otherwise.
 
 ### The fake add-on

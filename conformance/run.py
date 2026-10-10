@@ -34,10 +34,11 @@ class Runner:
             self.failed = True
         print(f"{result} {route}" + (f"  {detail}" if detail else ""))
 
-    def check(self, route: str, schema: str, params: dict | None = None):
+    def check(self, route: str, schema: str, params: dict | None = None, label: str = ""):
         """Fetch a route and validate it. Returns the body, or None on failure."""
+        path, route = route, label or route
         try:
-            response = self.client.get(self.base + route, params=params)
+            response = self.client.get(self.base + path, params=params)
         except httpx.HTTPError as exc:
             self.report("FAIL", route, f"{type(exc).__name__}: {exc}")
             return None
@@ -138,7 +139,12 @@ def main() -> int:
         if not params.get("title") or not params.get("artist"):
             runner.report("SKIP", "/stream/track/{id}", "no track; pass --title and --artist")
         else:
-            runner.check(f"/stream/track/{quote(track_id, safe=':')}", "StreamResponse", params)
+            route = f"/stream/track/{quote(track_id, safe=':')}"
+            runner.check(route, "StreamResponse", params)
+            label = route + "?queue=false"
+            body = runner.check(route, "StreamResponse", {**params, "queue": "false"}, label)
+            if body is not None and body.get("status") == "queued":
+                runner.report("FAIL", label, "status queued is not allowed with queue=false")
 
     return 1 if runner.failed else 0
 
