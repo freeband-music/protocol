@@ -8,7 +8,7 @@ This repository is the contract between the client and the add-ons:
 `openapi.yaml` is the single definition of the protocol, and `conformance/`
 checks a running add-on against it.
 
-- Client: <https://github.com/freeband-music/web-ui>
+- Client: <https://github.com/freeband-music/web>
 - Example metadata add-on: <https://github.com/freeband-music/addon-musicbrainz>
 
 ## The pieces
