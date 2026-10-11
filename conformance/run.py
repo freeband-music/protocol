@@ -96,6 +96,11 @@ def main() -> int:
     parser.add_argument("--title")
     parser.add_argument("--artist", action="append", default=[])
     parser.add_argument("--album-title")
+    parser.add_argument(
+        "--cached-only",
+        action="store_true",
+        help="send stream requests only with queue=false, so no download is started",
+    )
     args = parser.parse_args()
 
     base = args.url.rstrip("/").removesuffix("/manifest.json")
@@ -140,7 +145,8 @@ def main() -> int:
             runner.report("SKIP", "/stream/track/{id}", "no track; pass --title and --artist")
         else:
             route = f"/stream/track/{quote(track_id, safe=':')}"
-            runner.check(route, "StreamResponse", params)
+            if not args.cached_only:
+                runner.check(route, "StreamResponse", params)
             label = route + "?queue=false"
             body = runner.check(route, "StreamResponse", {**params, "queue": "false"}, label)
             if body is not None and body.get("status") == "queued":

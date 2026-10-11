@@ -166,7 +166,9 @@ just conformance http://localhost:8000 --title "Song" --artist "Artist" --album-
 ```
 
 For a stream add-on it sends the stream request twice, the second time with
-`queue=false`, and fails if that answer is `queued`. It prints one line per
+`queue=false`, and fails if that answer is `queued`. With `--cached-only` it
+sends only the `queue=false` request, so the add-on never starts preparing a
+track. It prints one line per
 route and exits 0 when every declared resource
 validates against the schema, 1 otherwise.
 
