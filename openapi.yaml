@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Freeband add-on protocol
-  version: 0.3.0
+  version: 0.4.0
   license:
     name: MIT
     identifier: MIT
@@ -270,6 +270,11 @@ components:
         image:
           type: string
           format: uri
+        popularity:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Optional, 0 (unknown to listeners) to 100 (among the most played).
     AlbumSummary:
       type: object
       required: [id, title, artists]
@@ -290,6 +295,11 @@ components:
         cover:
           type: string
           format: uri
+        popularity:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Optional, 0 (unknown to listeners) to 100 (among the most played).
     TrackSummary:
       type: object
       required: [id, title, artists]
@@ -314,6 +324,11 @@ components:
         isrc:
           type: string
           description: International Standard Recording Code, when known.
+        popularity:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Optional, 0 (unknown to listeners) to 100 (among the most played).
     Artist:
       allOf:
         - $ref: "#/components/schemas/ArtistSummary"

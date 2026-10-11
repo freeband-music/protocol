@@ -89,6 +89,16 @@ that the ID starts with. An empty `idPrefixes` means any ID, which is the
 norm for stream add-ons: to them the ID is opaque and useful only as a cache
 key.
 
+### Popularity
+
+Artist, album and track summaries may carry `popularity`, a number from 0
+(unknown to listeners) to 100 (among the most played). It is optional: leave
+it out when the source has no such data. Clients use it to pick the top
+search result and to mix the results of several metadata add-ons; scores
+from different add-ons are comparable only roughly, so an add-on should
+spread its scores over the whole range (a logarithmic scale suits play or
+fan counts). Added in protocol 0.4.0; older clients ignore it.
+
 ### Stream responses
 
 A stream response has a `status`, an optional `message` for the user and a

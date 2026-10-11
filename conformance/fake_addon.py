@@ -8,7 +8,7 @@ import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlsplit
 
-ARTIST = {"id": "fake:artist:1", "name": "Fake Artist"}
+ARTIST = {"id": "fake:artist:1", "name": "Fake Artist", "popularity": 40}
 ALBUM = {"id": "fake:album:1", "title": "Fake Album", "artists": [ARTIST], "year": 2020}
 TRACKS = [
     {
@@ -27,7 +27,7 @@ MANIFEST = {
     "name": "Fake add-on",
     "version": "0.1.0",
     "description": "Canned data for tests",
-    "protocolVersion": "0.3.0",
+    "protocolVersion": "0.4.0",
     "resources": ["search", "meta", "stream"],
     "idPrefixes": ["fake:"],
     "configurable": False,
